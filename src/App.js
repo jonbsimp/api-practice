@@ -4,6 +4,7 @@ class App extends React.Component{
   constructor(props){
     super(props)
     this.state = {
+      apiBase: "https://api.ratesapi.io",
       rates: null,
       errors: null,
       isFetching: true
@@ -16,8 +17,8 @@ class App extends React.Component{
     this.getExchangeRates()
   }
   getExchangeRates = () =>{
-    const apiEndpoint = "https://api.ratesapi.io/api/latest"
-    fetch(apiEndpoint)
+
+    fetch(`${this.state.apiBase}/api/latest`)
     .then((response)=> {
       if(response.status === 200){
         return response.json()
@@ -39,6 +40,27 @@ class App extends React.Component{
         errors: error, 
         isFetching: false
       })
+    })
+  }
+  
+  addRate = (currency, rate)=>{
+    fetch(`${this.state.apiBase}/api/create)`,{
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({currency: currency, rate: rate})
+    })
+    .then((response)=> {
+      if(response.status === 201){
+        return(response.json())
+      } else {
+        throw('Could not create currency. You are not the central bank.')
+      }
+    })
+    .then((currency)=>{
+      //whatever you want with the new currency
+      this.getRatesRetry()
     })
   }
   
