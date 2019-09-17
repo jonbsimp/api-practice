@@ -21,6 +21,8 @@ class App extends React.Component{
     .then((response)=> {
       if(response.status === 200){
         return response.json()
+      } else {
+        throw("Could not get conversion rates. Please try again.")
       }
     })
     
@@ -33,9 +35,8 @@ class App extends React.Component{
     })
     
     .catch((error)=>{
-      console.log("error", error)
       this.setState({
-        errors: "Could not get conversion rates. Please try again.", 
+        errors: error, 
         isFetching: false
       })
     })
