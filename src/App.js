@@ -1,26 +1,75 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends React.Component{
+  constructor(props){
+    super(props)
+    this.state = {
+      rates: null,
+      errors: null,
+      isFetching: true
+    }
+    this.getExchangeRates()
+  }
+  
+  getRatesRetry = () => {
+    this.setState({isFetching: true, errors: null})
+    this.getExchangeRates()
+  }
+  getExchangeRates = () =>{
+    const apiEndpoint = "https://api.ratesapi.io/api/latest"
+    fetch(apiEndpoint)
+    .then((response)=> {
+      if(response.status === 200){
+        return response.json()
+      }
+    })
+    
+    .then((currencyInfo)=>{
+      this.setState({
+        rates: currencyInfo.rates, 
+        isFetching: false, 
+        errors: null
+      })
+    })
+    
+    .catch((error)=>{
+      console.log("error", error)
+      this.setState({
+        errors: "Could not get conversion rates. Please try again.", 
+        isFetching: false
+      })
+    })
+  }
+  
+  render(){
+    return(
+      <div>
+        <h1>Euro Currency Conversion</h1>
+        {this.state.isFetching &&
+        <h4>We're fetching your rates. Please hold.</h4>
+        }
+        
+        {this.state.errors &&
+        <div>
+          <h5>{this.state.errors}</h5>
+          <button onClick={this.getRatesRetry}>Try Again</button>
+        </div>
+        }
+        
+        {this.state.rates &&
+        <ul>
+          {Object.keys(this.state.rates).map((currency, index)=>{
+            return(
+              <li key={index}>{currency}: {this.state.rates[currency]}</li>
+            )
+          })}
+        </ul>
+        }
+      </div>
+      )
+  
+  
+  }
 }
 
 export default App;
